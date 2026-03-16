@@ -56,9 +56,22 @@ router.get('/rooms/:roomId', requireLogin, async (req, res) => {
       [roomId]
     );
 
+    // Load current room members
+    const [members] = await db.query(
+      `
+      SELECT u.user_id, u.username, u.email
+      FROM room_user ru
+      JOIN user u ON ru.user_id = u.user_id
+      WHERE ru.room_id = ?
+      ORDER BY u.username ASC
+      `,
+      [roomId]
+    );
+
     res.render("room", {
       roomId,
       messages,
+      members,
       currentUser: req.session.user
     });
 
