@@ -2,4 +2,30 @@
 
 <p>Welcome <%= currentUser.username %></p>
 
+<hr>
+
+<h2>Messages</h2>
+
+<% if (messages.length === 0) { %>
+  <p>No messages yet.</p>
+<% } %>
+
+<% messages.forEach(msg => { %>
+  <div>
+    <strong><%= msg.username %></strong>
+    <small>(<%= msg.sent_datetime %>)</small>
+    <p><%= msg.text %></p>
+  </div>
+  <hr>
+<% }) %>
+
+<h3>Send a new message</h3>
+
+<form action="/rooms/<%= roomId %>/messages" method="POST">
+  <textarea name="text" rows="4" cols="50" required></textarea>
+  <br>
+  <button type="submit">Send</button>
+</form>
+
+<br>
 <a href="/rooms">Back to rooms</a>

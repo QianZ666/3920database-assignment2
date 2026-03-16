@@ -33,12 +33,9 @@ router.get('/rooms/:roomId', requireLogin, async (req, res) => {
     const roomId = req.params.roomId;
     const userId = req.session.user.user_id;
 
+    // Authorization check
     const [rows] = await db.query(
-      `
-      SELECT *
-      FROM room_user
-      WHERE room_id = ? AND user_id = ?
-      `,
+      `SELECT * FROM room_user WHERE room_id = ? AND user_id = ?`,
       [roomId, userId]
     );
 
@@ -46,13 +43,27 @@ router.get('/rooms/:roomId', requireLogin, async (req, res) => {
       return res.status(400).send("You are not allowed to access this room.");
     }
 
-    res.render('room', {
+    // Load messages
+    const [messages] = await db.query(
+      `
+      SELECT m.message_id, m.text, m.sent_datetime, u.username
+      FROM message m
+      JOIN room_user ru ON m.room_user_id = ru.room_user_id
+      JOIN user u ON ru.user_id = u.user_id
+      WHERE ru.room_id = ?
+      ORDER BY m.sent_datetime ASC
+      `,
+      [roomId]
+    );
+
+    res.render("room", {
       roomId,
+      messages,
       currentUser: req.session.user
     });
 
   } catch (error) {
-    console.error("Room authorization error:", error);
+    console.error("Room error:", error);
     res.status(500).send("Server error");
   }
 });
