@@ -8,6 +8,18 @@ const roomRoutes = require('./routes/rooms');
 const messageRoutes = require('./routes/messages');
 
 const app = express();
+const db = require('./db/mysql');
+
+async function testDB() {
+  try {
+    const [rows] = await db.query("SELECT 1");
+    console.log("Database connected");
+  } catch (err) {
+    console.error("Database connection failed:", err);
+  }
+}
+
+testDB();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
