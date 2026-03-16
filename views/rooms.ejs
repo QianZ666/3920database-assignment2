@@ -20,7 +20,9 @@
     <ul>
       <% rooms.forEach(room => { %>
         <li>
-          <strong><%= room.name %></strong>
+          <a href="/rooms/<%= room.room_id %>">
+            <strong><%= room.name %></strong>
+          </a>
           -
           <%= room.start_datetime %>
         </li>

@@ -28,4 +28,33 @@ router.get('/rooms', requireLogin, async (req, res) => {
   }
 });
 
+router.get('/rooms/:roomId', requireLogin, async (req, res) => {
+  try {
+    const roomId = req.params.roomId;
+    const userId = req.session.user.user_id;
+
+    const [rows] = await db.query(
+      `
+      SELECT *
+      FROM room_user
+      WHERE room_id = ? AND user_id = ?
+      `,
+      [roomId, userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(400).send("You are not allowed to access this room.");
+    }
+
+    res.render('room', {
+      roomId,
+      currentUser: req.session.user
+    });
+
+  } catch (error) {
+    console.error("Room authorization error:", error);
+    res.status(500).send("Server error");
+  }
+});
+
 module.exports = router;
