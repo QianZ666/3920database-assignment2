@@ -1,0 +1,25 @@
+<h1>Invite People to Room <%= roomId %></h1>
+
+<a href="/rooms/<%= roomId %>">Back to room</a>
+
+<hr>
+
+<h2>Current Members</h2>
+
+<ul>
+  <% members.forEach(member => { %>
+    <li><%= member.username %> (<%= member.email %>)</li>
+  <% }) %>
+</ul>
+
+<hr>
+
+<h2>Available Users</h2>
+
+<ul>
+  <% users.forEach(user => { %>
+    <li>
+      <%= user.username %> (<%= user.email %>)
+    </li>
+  <% }) %>
+</ul>

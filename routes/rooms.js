@@ -81,4 +81,54 @@ router.get('/rooms/:roomId', requireLogin, async (req, res) => {
   }
 });
 
+router.get('/rooms/:roomId/invite', requireLogin, async (req, res) => {
+  try {
+    const roomId = req.params.roomId;
+    const userId = req.session.user.user_id;
+
+    // Check authorization
+    const [rows] = await db.query(
+      `SELECT * FROM room_user WHERE room_id = ? AND user_id = ?`,
+      [roomId, userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(400).send("You are not allowed to access this room.");
+    }
+
+    // Current members
+    const [members] = await db.query(
+      `
+      SELECT u.user_id, u.username, u.email
+      FROM room_user ru
+      JOIN user u ON ru.user_id = u.user_id
+      WHERE ru.room_id = ?
+      `,
+      [roomId]
+    );
+
+    // Users NOT already in the room
+    const [users] = await db.query(
+      `
+      SELECT user_id, username, email
+      FROM user
+      WHERE user_id NOT IN (
+        SELECT user_id FROM room_user WHERE room_id = ?
+      )
+      `,
+      [roomId]
+    );
+
+    res.render("invite", {
+      roomId,
+      members,
+      users
+    });
+
+  } catch (error) {
+    console.error("Invite page error:", error);
+    res.status(500).send("Server error");
+  }
+});
+
 module.exports = router;
