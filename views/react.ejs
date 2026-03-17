@@ -1,0 +1,14 @@
+<h1>Select a Reaction</h1>
+
+<div>
+  <% emojis.forEach(emoji => { %>
+    <form action="/messages/<%= messageId %>/react" method="POST" style="display:inline;">
+      <input type="hidden" name="emoji_id" value="<%= emoji.emoji_id %>">
+      <input type="hidden" name="roomId" value="<%= roomId %>">
+      <button type="submit"><%= emoji.name %></button>
+    </form>
+  <% }) %>
+</div>
+
+<br>
+<a href="/rooms/<%= roomId %>">Back to room</a>
