@@ -131,4 +131,40 @@ router.get('/rooms/:roomId/invite', requireLogin, async (req, res) => {
   }
 });
 
+router.post('/rooms/:roomId/invite', requireLogin, async (req, res) => {
+  try {
+    const roomId = req.params.roomId;
+    const currentUserId = req.session.user.user_id;
+    const invitedUserId = req.body.userId;
+
+    // Authorization: current user must belong to the room
+    const [rows] = await db.query(
+      `SELECT * FROM room_user WHERE room_id = ? AND user_id = ?`,
+      [roomId, currentUserId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(400).send("You are not allowed to invite users to this room.");
+    }
+
+    // Prevent duplicate membership
+    const [existing] = await db.query(
+      `SELECT * FROM room_user WHERE room_id = ? AND user_id = ?`,
+      [roomId, invitedUserId]
+    );
+
+    if (existing.length === 0) {
+      await db.query(
+        `INSERT INTO room_user (user_id, room_id) VALUES (?, ?)`,
+        [invitedUserId, roomId]
+      );
+    }
+
+    res.redirect(`/rooms/${roomId}/invite`);
+  } catch (error) {
+    console.error("Invite user error:", error);
+    res.status(500).send("Failed to invite user.");
+  }
+});
+
 module.exports = router;

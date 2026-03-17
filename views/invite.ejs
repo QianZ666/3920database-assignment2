@@ -16,10 +16,18 @@
 
 <h2>Available Users</h2>
 
-<ul>
-  <% users.forEach(user => { %>
-    <li>
-      <%= user.username %> (<%= user.email %>)
-    </li>
-  <% }) %>
-</ul>
+<% if (users.length === 0) { %>
+  <p>No more users available to invite.</p>
+<% } else { %>
+  <ul>
+    <% users.forEach(user => { %>
+      <li>
+        <%= user.username %> (<%= user.email %>)
+        <form action="/rooms/<%= roomId %>/invite" method="POST" style="display:inline;">
+          <input type="hidden" name="userId" value="<%= user.user_id %>">
+          <button type="submit">Invite</button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
