@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo').default;
 const path = require('path');
 require('dotenv').config();
 
@@ -28,14 +29,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'temp_secret_key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 }
-  })
-);
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI
+  }),
+
+  cookie: {
+    httpOnly: true,
+    secure: false, 
+    maxAge: 1000 * 60 * 60 * 24
+  }
+}));
 
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
