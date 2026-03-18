@@ -50,13 +50,13 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', authRoutes);
-app.use('/', roomRoutes);
-app.use('/', messageRoutes);
-
 app.get('/', (req, res) => {
   res.redirect('/login');
 });
+
+app.use('/', authRoutes);
+app.use('/', roomRoutes);
+app.use('/', messageRoutes);
 
 app.use((req, res) => {
   res.status(404).render('404');
